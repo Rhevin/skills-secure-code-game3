@@ -13,7 +13,7 @@
       "body-parser": "^1.20.4",
       "express": "^4.22.1",
       "fs": "^0.0.1-security",
-      "libxmljs": "^1.0.9",
+      "libxmljs2": "^0.33.0",
       "multer": "^2.1.1",
       "path": "^0.12.7"
     },
@@ -21,5 +21,10 @@
       "chai": "^4.3.8",
       "mocha": "^10.8.2",
       "supertest": "^6.3.3"
+    },
+    "overrides": {
+      "tar": "^7.5.11",
+      "serialize-javascript": "^7.0.3",
+      "formidable": "^3.5.4"
     }
   }
