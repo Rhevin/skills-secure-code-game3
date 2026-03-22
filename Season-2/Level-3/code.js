@@ -11,7 +11,7 @@
 
 const express = require("express");
 const bodyParser = require("body-parser");
-const libxmljs = require("libxmljs2");
+const { DOMParser } = require("@xmldom/xmldom");
 const multer = require("multer");
 const app = express();
 
@@ -37,36 +37,25 @@ app.post("/ufo", (req, res) => {
     res.status(200).json({ ufo: "Received JSON data from an unknown planet." });
   } else if (contentType === "application/xml") {
     try {
-      const xmlDoc = libxmljs.parseXml(req.body, {
-        replaceEntities: false,
-        recover: false,
-        nonet: true,
-      });
+      const parser = new DOMParser({ onError: () => {} });
+      const xmlDoc = parser.parseFromString(req.body, "text/xml");
 
-      console.log("Received XML data from XMLon:", xmlDoc.toString());
+      console.log("Received XML data from XMLon:", req.body);
 
       const extractedContent = [];
+      const root = xmlDoc.documentElement;
 
-      xmlDoc
-        .root()
-        .childNodes()
-        .forEach((node) => {
-          if (node.type() === "element") {
-            extractedContent.push(node.text());
-          }
-        });
-
-      if (
-        xmlDoc.toString().includes('SYSTEM "') &&
-        xmlDoc.toString().includes(".admin")
-      ) {
-        res.status(400).send("Invalid XML");
-      } else {
-        res
-          .status(200)
-          .set("Content-Type", "text/plain")
-          .send(extractedContent.join(" "));
+      for (let i = 0; i < root.childNodes.length; i++) {
+        const node = root.childNodes[i];
+        if (node.nodeType === 1) {
+          extractedContent.push(node.textContent);
+        }
       }
+
+      res
+        .status(200)
+        .set("Content-Type", "text/plain")
+        .send(extractedContent.join(" "));
     } catch (error) {
       console.error("XML parsing or validation error");
       res.status(400).send("Invalid XML");
